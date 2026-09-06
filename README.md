@@ -11,7 +11,19 @@ No score. No ranking. No language model writing the numbers.
 
 **Live:** https://before-you-give.vercel.app
 
-![before-you-give](assets/before-you-give.png)
+![Searching for Feeding America, opening the reading, pressing play, and scrolling to the year by year chart](assets/demo.gif)
+
+A real session on the live site: search, pick the organization, listen, follow the narration, scroll to the chart. The same clip as an MP4: [assets/demo.mp4](assets/demo.mp4).
+
+## Screens
+
+| Landing | Reading |
+|---|---|
+| ![Landing page](assets/landing.png) | ![The American Red Cross reading](assets/results.png) |
+
+| Year by year | Phone |
+|---|---|
+| ![Year by year chart and table](assets/year-by-year.png) | ![A food pantry on a phone, narration playing](assets/mobile-playing.png) |
 
 ## Why there is no score
 
