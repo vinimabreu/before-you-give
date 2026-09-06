@@ -162,7 +162,7 @@
     } catch (err) { setStatus("Search failed: " + err.message); }
   });
 
-  async function load(ein) {
+  async function load(ein, scroll = true) {
     setStatus("Reading the filings…");
     stopAudio();
     try {
@@ -172,7 +172,7 @@
       render(current);
       setStatus("");
       org.classList.remove("hidden");
-      org.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) org.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (err) { setStatus("Could not read this organization: " + err.message); }
   }
 
@@ -236,7 +236,7 @@
   function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
   const params = new URLSearchParams(location.search);
-  if (params.get("ein")) load(params.get("ein"));
+  if (params.get("ein")) load(params.get("ein"), false);
 })();
 </script>
 </body>

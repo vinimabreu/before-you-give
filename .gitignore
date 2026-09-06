@@ -6,3 +6,5 @@ __pycache__/
 .cache/
 *.mp3
 .env
+*.egg-info/
+.DS_Store
