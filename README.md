@@ -3,7 +3,7 @@
 [![ci](https://github.com/vinimabreu/before-you-give/actions/workflows/ci.yml/badge.svg)](https://github.com/vinimabreu/before-you-give/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![tests](https://img.shields.io/badge/tests-75%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-82%20passing-brightgreen)
 
 Type the name of a US nonprofit and hear, in a minute or two, what its public tax filings say: how much money moved, whether it spent more than it took in, how many months of reserves it holds, where the money comes from, and how that has moved over a decade. Then, in the same breath, what those filings cannot tell you.
 
@@ -50,7 +50,7 @@ git clone https://github.com/vinimabreu/before-you-give
 cd before-you-give
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest                                   # 75 tests, offline, no key
+pytest                                   # 82 tests, offline, no key
 
 python -m examples.offline_demo          # five saved filings, no network
 python -m before_you_give "east bay food pantry" --state RI
