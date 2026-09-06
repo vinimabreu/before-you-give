@@ -80,7 +80,7 @@ src/before_you_give/
   format.py       one rendering for the eye, one for the voice
   narration.py    the deterministic script
   speech.py       ElevenLabs with cache and cap; disk store or Vercel Blob
-api/index.py      the same app as a Vercel function
+app.py            the same app as a Vercel function (zero-config FastAPI)
   app.py          FastAPI: /, /api/search, /api/org/{ein}, /api/org/{ein}/audio.mp3
   web/index.html  the page, no build step
 tests/fixtures/   real API responses: two 990s, a 990-EZ, a 990-PF, an org with no filings
