@@ -159,6 +159,8 @@
   .mini .play { width: 40px; height: 40px; }
   .mini .play .tri { border-left-width: 13px; border-top-width: 7px; border-bottom-width: 7px; }
   .mini .play .bars i { width: 4px; height: 14px; }
+  .mini.playing .play .tri { display: none; }
+  .mini.playing .play .bars { display: flex; }
 
   @media (max-width: 960px) {
     header, footer, #status { padding-left: 20px; padding-right: 20px; }
@@ -508,8 +510,8 @@
   $("playBtn").addEventListener("click", toggle);
   $("miniPlay").addEventListener("click", toggle);
   $("rate").addEventListener("click", () => { rateIx = (rateIx + 1) % rates.length; audio.playbackRate = rates[rateIx]; $("rate").textContent = rates[rateIx] + "×"; });
-  audio.addEventListener("play", () => { player.classList.add("playing"); document.body.classList.add("playing"); $("playBtn").setAttribute("aria-label", "Pause"); });
-  audio.addEventListener("pause", () => { player.classList.remove("playing"); $("playBtn").setAttribute("aria-label", "Play"); });
+  audio.addEventListener("play", () => { player.classList.add("playing"); $("mini").classList.add("playing"); document.body.classList.add("playing"); $("playBtn").setAttribute("aria-label", "Pause"); });
+  audio.addEventListener("pause", () => { player.classList.remove("playing"); $("mini").classList.remove("playing"); $("playBtn").setAttribute("aria-label", "Play"); });
   audio.addEventListener("ended", () => { document.body.classList.remove("playing"); $("now").textContent = "That's the filing. Check the numbers yourself below."; renderScript(-1); setChip("show"); });
   audio.addEventListener("timeupdate", () => {
     const d = audio.duration || 0, t = audio.currentTime || 0, f = d ? t / d : 0;

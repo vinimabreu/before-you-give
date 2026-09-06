@@ -89,6 +89,16 @@ def test_negative_revenue_is_spoken_with_its_sign(red_cross):
     assert "$" not in script(r) and "%" not in script(r)
 
 
+def test_tiny_shares_do_not_say_about_under(red_cross):
+    latest = replace(red_cross.latest, revenue=red_cross.latest.expenses + 1_000,
+                     officer_comp=1_000, other_salaries=0, payroll_tax=0)
+    r = read(replace(red_cross, filings=(latest,) + red_cross.filings[1:]))
+    assert "less than 1% of what it spent" in fact(r, "balance").meaning
+    assert "less than 1 percent of what it spent" in fact(r, "balance").spoken
+    assert fact(r, "people").meaning.startswith("Less than 1% of spending")
+    assert "about under" not in script(r)
+
+
 def test_events_fact_needs_the_cost_line(red_cross):
     latest = replace(red_cross.latest, fundraising_direct_costs=None)
     r = read(replace(red_cross, filings=(latest,) + red_cross.filings[1:]))

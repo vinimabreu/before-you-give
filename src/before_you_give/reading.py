@@ -116,8 +116,13 @@ def _balance(f: Filing) -> list[Fact]:
         return []
     diff = f.revenue - f.expenses
     ratio = _share(abs(diff), f.expenses)
-    pct = f", about {pct_display(ratio)} of what it spent" if ratio is not None else ""
-    pct_s = f", about {pct_spoken(ratio)} of what it spent" if ratio is not None else ""
+    pct, pct_s = "", ""
+    if ratio is not None and ratio < 0.01:
+        pct = pct_s = ", less than 1 percent of what it spent"
+        pct = ", less than 1% of what it spent"
+    elif ratio is not None:
+        pct = f", about {pct_display(ratio)} of what it spent"
+        pct_s = f", about {pct_spoken(ratio)} of what it spent"
     if diff >= 0:
         meaning = f"It ended the year with {money_display(diff)} more than it spent{pct}."
         spoken = f"It ended the year with {money_spoken(diff)} more than it spent{pct_s}."
@@ -192,12 +197,14 @@ def _people(f: Filing) -> list[Fact]:
         who = "went to officers, directors and key employees"
         officer = f", of which {money_display(f.officer_comp)} {who}"
         officer_s = f", of which {money_spoken(f.officer_comp)} {who}"
+    lead = "Less than 1%" if share < 0.01 else f"About {pct_display(share)}"
+    lead_s = "Less than 1 percent" if share < 0.01 else f"About {pct_spoken(share)}"
     return [Fact(
         key="people",
         label="Pay",
         display=f"{pct_display(share)} of spending",
-        meaning=f"About {pct_display(share)} of spending went to pay people{officer}.",
-        spoken=f"About {pct_spoken(share)} of spending went to pay people{officer_s}.",
+        meaning=f"{lead} of spending went to pay people{officer}.",
+        spoken=f"{lead_s} of spending went to pay people{officer_s}.",
         limit=(
             "Most charities deliver their work through people, so a high share is not "
             "a bad sign by itself. What matters is what those people do, and the filing "

@@ -59,6 +59,8 @@ def _pct(ratio: float) -> str:
 def _months(months: float) -> str:
     if months < 1:
         return "less than a month"
+    if round(months) == 1:
+        return "about a month"
     if months < 24:
         return f"about {round(months)} months"
     return f"about {_trim(months / 12)} years"

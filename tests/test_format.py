@@ -42,7 +42,8 @@ def test_pct(ratio, display, spoken):
 
 
 @pytest.mark.parametrize("months,text", [
-    (0.4, "less than a month"), (12.2, "about 12 months"), (23.6, "about 24 months"),
+    (0.4, "less than a month"), (1.3, "about a month"), (12.2, "about 12 months"),
+    (23.6, "about 24 months"),
     (36.0, "about 3 years"), (41.0, "about 3.4 years"),
 ])
 def test_months(months, text):
