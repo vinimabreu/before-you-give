@@ -151,7 +151,7 @@
       url.searchParams.set("q", q);
       if (state.length === 2) url.searchParams.set("state", state);
       const r = await fetch(url);
-      if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+      if (!r.ok) throw new Error(await reason(r));
       const hits = (await r.json()).hits;
       if (!hits.length) { setStatus("Nothing found with that name. Try fewer words, or add the state."); return; }
       setStatus(hits.length === 1 ? "One match." : hits.length + " matches. Pick one.");
@@ -171,7 +171,7 @@
     stopAudio();
     try {
       const r = await fetch(`/api/org/${ein}`);
-      if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+      if (!r.ok) throw new Error(await reason(r));
       current = await r.json();
       render(current);
       setStatus("");
@@ -225,7 +225,7 @@
     listen.disabled = true; $("listenNote").textContent = "Preparing the audio…";
     try {
       const r = await fetch(`/api/org/${current.organization.ein}/audio.mp3`);
-      if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+      if (!r.ok) throw new Error(await reason(r));
       stopAudio();
       audioUrl = URL.createObjectURL(await r.blob());
       player.src = audioUrl; player.classList.remove("hidden");
@@ -235,6 +235,10 @@
     finally { listen.disabled = false; }
   });
 
+  async function reason(r) {
+    try { const b = await r.json(); if (b && b.detail) return b.detail; } catch (_) {}
+    return r.status === 429 ? "too many requests from this address, wait a minute and try again" : (r.statusText || ("HTTP " + r.status));
+  }
   function stopAudio() { try { player.pause(); } catch (_) {} if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; } }
   const pct = (v, max) => Math.max(0, Math.min(100, Math.round(100 * Math.max(0, v) / max)));
   function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
