@@ -67,11 +67,10 @@ def test_negative_net_assets_is_a_question_not_a_verdict(pantry):
     assert "not a verdict" in reserves.limit
 
 
-def test_private_foundation_gets_the_foundation_caveat_and_no_pay_fact(foundation):
+def test_private_foundation_gets_the_foundation_caveat(foundation):
     r = read(foundation)
     assert r.status == "foundation"
-    assert "people" not in keys(r) and "sources" not in keys(r) and "reserves" not in keys(r)
-    assert "size" in keys(r) and "balance" in keys(r)
+    assert keys(r) == ["size", "balance", "reserves", "people", "sources", "trend"]
     assert any("private foundation" in c for c in r.caveats)
 
 

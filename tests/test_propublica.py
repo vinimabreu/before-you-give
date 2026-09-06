@@ -30,13 +30,15 @@ def test_red_cross_parses_thirteen_filings_newest_first(red_cross):
     assert red_cross.city == "Washington" and red_cross.state == "DC"
 
 
-def test_private_foundation_keeps_missing_fields_missing(foundation):
+def test_private_foundation_reads_its_own_line_names(foundation):
     latest = foundation.latest
     assert latest.form == "990-PF"
-    assert latest.net_assets is None
-    assert latest.contributions is None
-    assert latest.officer_comp is None
     assert latest.revenue == 7_810_137_842
+    assert latest.net_assets == 70_420_596_215        # tfundnworth
+    assert latest.contributions == 7_797_470_287     # grscontrgifts
+    assert latest.officer_comp == 13_590_793         # compofficers
+    assert latest.other_salaries is None             # not on the PF extract
+    assert latest.program_revenue is None
 
 
 def test_organization_with_no_filings(empty):
@@ -64,6 +66,10 @@ def test_normalize_ein(raw, expected):
 def test_normalize_ein_rejects_wrong_length():
     with pytest.raises(ValueError):
         normalize_ein("1234")
+    with pytest.raises(ValueError):
+        normalize_ein(0)
+    with pytest.raises(ValueError):
+        normalize_ein(10**9)
 
 
 def test_format_ein_pads_leading_zero():
@@ -98,6 +104,15 @@ def test_cache_expires(tmp_path: Path):
     assert cache.get("k") == {"a": 1}
     time.sleep(0.02)
     assert cache.get("k") is None
+
+
+def test_search_with_no_results_is_an_empty_list_not_an_error():
+    import urllib.error
+
+    def fetch(url: str) -> dict:
+        raise urllib.error.HTTPError(url, 404, "Not Found", None, None)  # type: ignore[arg-type]
+
+    assert Client(fetch=fetch).search("zzqx nothing here") == []
 
 
 def test_search_builds_state_filter_and_trims_query():

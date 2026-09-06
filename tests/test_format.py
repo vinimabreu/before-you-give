@@ -19,7 +19,7 @@ from before_you_give.format import (
     (194_573, "$195K", "195 thousand dollars"),
     (64_049, "$64,049", "64,049 dollars"),
     (0, "$0", "0 dollars"),
-    (-2_000_000, "-$2 million", "2 million dollars"),
+    (-2_000_000, "-$2 million", "minus 2 million dollars"),
 ])
 def test_money(n, display, spoken):
     assert money_display(n) == display

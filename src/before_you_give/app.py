@@ -1,7 +1,9 @@
 """HTTP surface: one page, three JSON routes, one audio route."""
 from __future__ import annotations
 
+import threading
 import time
+import urllib.error
 from collections import defaultdict, deque
 from dataclasses import asdict
 from pathlib import Path
@@ -26,16 +28,21 @@ class Limiter:
         self.limit = limit
         self.window = window_seconds
         self._hits: dict[str, deque[float]] = defaultdict(deque)
+        self._lock = threading.Lock()
 
     def allow(self, key: str, now: float | None = None) -> bool:
         now = time.time() if now is None else now
-        q = self._hits[key]
-        while q and now - q[0] > self.window:
-            q.popleft()
-        if len(q) >= self.limit:
-            return False
-        q.append(now)
-        return True
+        with self._lock:
+            if len(self._hits) > 10_000:   # forget addresses whose window has passed
+                for k in [k for k, q in self._hits.items() if not q or now - q[-1] > self.window]:
+                    del self._hits[k]
+            q = self._hits[key]
+            while q and now - q[0] > self.window:
+                q.popleft()
+            if len(q) >= self.limit:
+                return False
+            q.append(now)
+            return True
 
 
 def reading_payload(reading: Reading) -> dict[str, Any]:
@@ -79,7 +86,10 @@ def create_app(
     client = client or Client(cache=JsonCache(cache_dir / "propublica"))
     speech = speech if speech is not None else maybe_speech(cache_dir / "audio")
     limiter = limiter or Limiter()
-    app = FastAPI(title="before-you-give", version=__version__)
+    app = FastAPI(
+        title="before-you-give", version=__version__,
+        docs_url=None, redoc_url=None, openapi_url=None,
+    )
     index_html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
 
     def _reading(ein: str) -> Reading:
@@ -89,11 +99,17 @@ def create_app(
             raise HTTPException(400, str(e)) from e
         try:
             org = client.organization(n)
-        except Exception as e:  # upstream 404 or network
-            raise HTTPException(404, f"no organization found for EIN {ein}") from e
+        except ValueError as e:   # the feed answered, but not with an organization
+            raise HTTPException(502, f"unexpected response from the data feed: {e}") from e
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                raise HTTPException(404, f"no organization found for EIN {ein}") from e
+            raise HTTPException(502, "the data feed did not answer; try again in a moment") from e
+        except Exception as e:    # network, timeout
+            raise HTTPException(502, "the data feed did not answer; try again in a moment") from e
         return read(org)
 
-    @app.get("/", response_class=HTMLResponse)
+    @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
     def index() -> str:
         return index_html
 
@@ -112,7 +128,10 @@ def create_app(
     ) -> dict[str, Any]:
         if state is not None and (len(state) != 2 or not state.isalpha()):
             raise HTTPException(400, "state is a two letter code")
-        hits = client.search(q, state)
+        try:
+            hits = client.search(q, state)
+        except Exception as e:   # the feed refused or timed out; say so instead of a bare 500
+            raise HTTPException(502, "the data feed did not answer; try again in a moment") from e
         return {"hits": [
             {"ein": h.ein, "ein_text": h.ein_text, "name": h.name, "city": h.city,
              "state": h.state, "ntee_code": h.ntee_code, "subsection": h.subsection}

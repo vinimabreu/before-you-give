@@ -9,9 +9,13 @@ not charge for access, do not redistribute the raw data).
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
+import threading
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
@@ -40,8 +44,20 @@ def _http_fetch(url: str) -> dict[str, Any]:
 
 
 def normalize_ein(raw: str | int) -> int:
+    """An EIN is nine digits, and the first one is often a zero (all of New England).
+
+    Integers are accepted as they are, because the feed returns EINs as integers
+    and 46169825 is 04-6169825 with the zero gone. A string of eight digits is
+    read the same way; anything shorter is a typo, not a missing zero.
+    """
+    if isinstance(raw, bool):
+        raise ValueError(f"not an EIN: {raw!r}")
+    if isinstance(raw, int):
+        if 0 < raw < 10**9:
+            return raw
+        raise ValueError(f"an EIN has 9 digits, got {raw!r}")
     digits = re.sub(r"\D", "", str(raw))
-    if len(digits) != 9:
+    if len(digits) not in (8, 9) or int(digits) == 0:
         raise ValueError(f"an EIN has 9 digits, got {raw!r}")
     return int(digits)
 
@@ -69,6 +85,15 @@ def _money(v: Any) -> int | None:
     if isinstance(v, bool) or not isinstance(v, (int, float)):
         return None
     return int(v)
+
+
+def _first(raw: dict[str, Any], *keys: str) -> int | None:
+    """The same line item lives under different keys on the 990, 990-EZ and 990-PF."""
+    for key in keys:
+        value = _money(raw.get(key))
+        if value is not None:
+            return value
+    return None
 
 
 @dataclass(frozen=True)
@@ -148,26 +173,28 @@ def parse_filing(raw: dict[str, Any]) -> Filing:
         year=year,
         period=period,
         form=form,
-        revenue=_money(raw.get("totrevenue")),
-        expenses=_money(raw.get("totfuncexpns")),
-        assets=_money(raw.get("totassetsend")),
-        liabilities=_money(raw.get("totliabend")),
-        net_assets=_money(raw.get("totnetassetend")),
-        officer_comp=_money(raw.get("compnsatncurrofcr")),
-        other_salaries=_money(raw.get("othrsalwages")),
-        payroll_tax=_money(raw.get("payrolltx")),
-        contributions=_money(raw.get("totcntrbgfts")),
-        program_revenue=_money(raw.get("totprgmrevnue")),
-        investment_income=_money(raw.get("invstmntinc")),
-        pro_fundraising_fees=_money(raw.get("profndraising")),
-        fundraising_gross=_money(raw.get("grsincfndrsng")),
-        fundraising_direct_costs=_money(raw.get("lessdirfndrsng")),
+        revenue=_first(raw, "totrevenue", "totrevnue"),
+        expenses=_first(raw, "totfuncexpns", "totexpns"),
+        assets=_first(raw, "totassetsend"),
+        liabilities=_first(raw, "totliabend"),
+        net_assets=_first(raw, "totnetassetend", "totnetassetsend", "tfundnworth"),
+        officer_comp=_first(raw, "compnsatncurrofcr", "compofficers"),
+        other_salaries=_first(raw, "othrsalwages", "salariesetc"),
+        payroll_tax=_first(raw, "payrolltx"),
+        contributions=_first(raw, "totcntrbgfts", "totcntrbs", "grscontrgifts"),
+        program_revenue=_first(raw, "totprgmrevnue", "prgmservrev"),
+        investment_income=_first(raw, "invstmntinc", "othrinvstinc", "netinvstinc"),
+        pro_fundraising_fees=_first(raw, "profndraising"),
+        fundraising_gross=_first(raw, "grsincfndrsng", "grsrevnuefndrsng"),
+        fundraising_direct_costs=_first(raw, "lessdirfndrsng", "direxpns"),
         pdf_url=raw.get("pdf_url") or None,
     )
 
 
 def parse_organization(data: dict[str, Any]) -> Organization:
     org = data.get("organization") or {}
+    if not isinstance(org.get("ein"), int):
+        raise ValueError("the response carries no organization")
     filings = [parse_filing(f) for f in data.get("filings_with_data") or []]
     filings.sort(key=lambda f: f.period, reverse=True)
     return Organization(
@@ -201,33 +228,58 @@ def parse_search(data: dict[str, Any]) -> list[SearchHit]:
 
 
 class JsonCache:
-    """One JSON file per key, with a TTL. Filings change once a year; a week is plenty."""
+    """One JSON file per key, with a TTL. Filings change once a year; a week is plenty.
 
-    def __init__(self, directory: Path, ttl_seconds: float = 7 * 24 * 3600) -> None:
+    Every distinct search query becomes a file, so the directory is swept of
+    expired entries whenever it grows past `max_files`. Keys are hashed into the
+    file name: two queries that differ only in accents are two entries, and no
+    key can reach outside the directory.
+    """
+
+    def __init__(
+        self, directory: Path, ttl_seconds: float = 7 * 24 * 3600, max_files: int = 500
+    ) -> None:
         self.directory = directory
         self.ttl = ttl_seconds
+        self.max_files = max_files
         self.directory.mkdir(parents=True, exist_ok=True)
 
     def _path(self, key: str) -> Path:
-        safe = re.sub(r"[^A-Za-z0-9_.-]", "_", key)
-        return self.directory / f"{safe}.json"
+        stem = re.sub(r"[^A-Za-z0-9_-]", "_", key)[:40]
+        digest = hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
+        return self.directory / f"{stem}.{digest}.json"
 
     def get(self, key: str) -> dict[str, Any] | None:
         path = self._path(key)
-        if not path.exists():
-            return None
-        if time.time() - path.stat().st_mtime > self.ttl:
-            return None
         try:
+            if time.time() - path.stat().st_mtime > self.ttl:
+                return None
             return json.loads(path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
+        except (OSError, ValueError):   # missing, unreadable, invalid bytes, bad JSON
             return None
 
     def put(self, key: str, data: dict[str, Any]) -> None:
         path = self._path(key)
-        tmp = path.with_suffix(".tmp")
+        tmp = path.with_name(f"{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
         tmp.write_text(json.dumps(data), encoding="utf-8")
         tmp.replace(path)
+        self.sweep()
+
+    def sweep(self, force: bool = False) -> int:
+        """Delete expired entries once the directory is bigger than max_files."""
+        entries = list(self.directory.glob("*.json"))
+        if not force and len(entries) <= self.max_files:
+            return 0
+        now = time.time()
+        removed = 0
+        for entry in entries:
+            try:
+                if now - entry.stat().st_mtime > self.ttl:
+                    entry.unlink()
+                    removed += 1
+            except OSError:
+                continue
+        return removed
 
 
 class Client:
@@ -256,7 +308,12 @@ class Client:
             params.append(("state[id]", state.strip().upper()))
         url = f"{BASE_URL}/search.json?{urllib.parse.urlencode(params)}"
         key = f"search_{query.lower()}_{(state or '').lower()}"
-        return parse_search(self._get(key, url))
+        try:
+            return parse_search(self._get(key, url))
+        except urllib.error.HTTPError as e:
+            if e.code == 404:   # the feed answers "no results" with a 404
+                return []
+            raise
 
     def organization(self, ein: str | int) -> Organization:
         n = normalize_ein(ein)

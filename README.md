@@ -3,7 +3,7 @@
 [![ci](https://github.com/vinimabreu/before-you-give/actions/workflows/ci.yml/badge.svg)](https://github.com/vinimabreu/before-you-give/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![tests](https://img.shields.io/badge/tests-58%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-75%20passing-brightgreen)
 
 Type the name of a US nonprofit and hear, in a minute or two, what its public tax filings say: how much money moved, whether it spent more than it took in, how many months of reserves it holds, where the money comes from, and how that has moved over a decade. Then, in the same breath, what those filings cannot tell you.
 
@@ -30,7 +30,7 @@ The same discipline applies to what is missing. The program / administration / f
 
 ## Where the numbers come from
 
-Every figure is read unchanged from the [ProPublica Nonprofit Explorer](https://projects.propublica.org/nonprofits/) API, which republishes IRS Form 990 extract data. The page links the filing PDF and the organization's ProPublica page so anyone can check. Per ProPublica's [data terms](https://projects.propublica.org/datastore/terms/), this project cites them, charges nobody, and does not redistribute the raw data; it keeps a short-lived cache so the API is not hit twice for the same organization.
+Every figure is read unchanged from the [ProPublica Nonprofit Explorer](https://projects.propublica.org/nonprofits/) API, which republishes IRS Form 990 extract data. The page links the filing PDF and the organization's ProPublica page so anyone can check. Per ProPublica's [data terms](https://projects.propublica.org/datastore/terms/), this project cites them, charges nobody, and does not republish the dataset; it keeps a short-lived cache so the API is not hit twice for the same organization. The six recorded responses under `tests/fixtures/` exist only to pin the tests, and they are ProPublica's.
 
 ## The voice
 
@@ -50,7 +50,7 @@ git clone https://github.com/vinimabreu/before-you-give
 cd before-you-give
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pytest                                   # 58 tests, offline, no key
+pytest                                   # 75 tests, offline, no key
 
 python -m examples.offline_demo          # five saved filings, no network
 python -m before_you_give "east bay food pantry" --state RI
@@ -80,7 +80,7 @@ src/before_you_give/
   speech.py       ElevenLabs with cache and cap
   app.py          FastAPI: /, /api/search, /api/org/{ein}, /api/org/{ein}/audio.mp3
   web/index.html  the page, no build step
-tests/fixtures/   real API responses: a 990, a 990-PF, a small pantry, an org with no filings
+tests/fixtures/   real API responses: two 990s, a 990-EZ, a 990-PF, an org with no filings
 ```
 
 The fetchers are injected callables, so the whole suite runs offline. `tests/test_reading.py` pins the arithmetic against the American Red Cross filing for fiscal 2023, field by field.

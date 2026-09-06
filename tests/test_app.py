@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import urllib.error
 from pathlib import Path
 
 import pytest
@@ -23,7 +24,7 @@ def fake_fetch(url: str) -> dict:
     for ein, name in FILES.items():
         if url.endswith(f"/organizations/{ein}.json"):
             return load(name)
-    raise RuntimeError("404")
+    raise urllib.error.HTTPError(url, 404, "Not Found", None, None)  # type: ignore[arg-type]
 
 
 @pytest.fixture

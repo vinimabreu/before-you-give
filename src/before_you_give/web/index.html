@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Before You Give</title>
 <meta name="description" content="Hear what a nonprofit's public tax filings say before you donate. No score, no guessing.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Before you give">
+<meta property="og:description" content="Hear what a nonprofit's public tax filings say before you donate. No score, no guessing.">
+<meta property="og:image" content="https://raw.githubusercontent.com/vinimabreu/before-you-give/main/assets/before-you-give.png">
 <style>
   :root {
     --bg: #FBF7F0; --card: #FFFFFF; --ink: #1F1B16; --muted: #6B6259; --line: #E6DFD3;
@@ -155,7 +159,7 @@
         const li = document.createElement("li"), b = document.createElement("button");
         b.type = "button";
         b.innerHTML = `<span>${esc(h.name)}</span><small>${esc(h.city)}${h.city && h.state ? ", " : ""}${esc(h.state)} · EIN ${esc(h.ein_text)}</small>`;
-        b.addEventListener("click", () => load(h.ein));
+        b.addEventListener("click", () => load(h.ein_text));
         li.appendChild(b); results.appendChild(li);
       }
       if (hits.length === 1) load(hits[0].ein);

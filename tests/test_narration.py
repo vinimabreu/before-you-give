@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from before_you_give.narration import SOURCE_LINE, script, word_count
 from before_you_give.reading import read
 
@@ -19,7 +21,8 @@ def test_script_is_deterministic_and_sourced(red_cross):
 def test_script_reads_aloud_without_signs(red_cross, msf, pantry, foundation, empty):
     for org in (red_cross, msf, pantry, foundation, empty):
         text = script(read(org))
-        assert "$" not in text and "%" not in text and "K " not in text
+        assert "$" not in text and "%" not in text
+        assert not re.search(r"\d+K\b", text)
         assert 60 <= word_count(text) <= 320, (org.name, word_count(text))
 
 

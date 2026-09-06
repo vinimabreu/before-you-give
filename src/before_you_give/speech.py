@@ -10,6 +10,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import tempfile
+import threading
 import urllib.request
 from collections.abc import Callable
 from pathlib import Path
@@ -82,6 +84,7 @@ class Speech:
         )
         self.calls = 0
         self.chars = 0
+        self._lock = threading.Lock()
         self._cache = cache_dir
         self._cache.mkdir(parents=True, exist_ok=True)
         if fetch is not None:
@@ -106,18 +109,24 @@ class Speech:
         path = self._path(text)
         if path.exists():
             return path.read_bytes()
-        if self.calls >= self.max_calls or self.chars + len(text) > self.max_chars:
-            raise SpendingCapReached(
-                f"cap reached: {self.calls}/{self.max_calls} calls, "
-                f"{self.chars}/{self.max_chars} characters"
-            )
-        audio = self._fetch(self.voice_id, text)
-        self.calls += 1
-        self.chars += len(text)
-        tmp = path.with_suffix(".tmp")
-        tmp.write_bytes(audio)
-        tmp.replace(path)
-        return audio
+        # One synthesis at a time. Ten people asking for the same organization in
+        # the same second must cost one call, and the cap must hold under load.
+        with self._lock:
+            if path.exists():
+                return path.read_bytes()
+            if self.calls >= self.max_calls or self.chars + len(text) > self.max_chars:
+                raise SpendingCapReached(
+                    f"cap reached: {self.calls}/{self.max_calls} calls, "
+                    f"{self.chars}/{self.max_chars} characters"
+                )
+            audio = self._fetch(self.voice_id, text)
+            self.calls += 1
+            self.chars += len(text)
+            fd, tmp_name = tempfile.mkstemp(dir=self._cache, suffix=".tmp")
+            with os.fdopen(fd, "wb") as tmp:
+                tmp.write(audio)
+            os.replace(tmp_name, path)
+            return audio
 
 
 def maybe_speech(cache_dir: Path) -> Speech | None:

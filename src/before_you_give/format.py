@@ -20,7 +20,10 @@ def money_display(n: int) -> str:
 
 
 def money_spoken(n: int) -> str:
-    a = abs(n)
+    return ("minus " if n < 0 else "") + _money_spoken_abs(abs(n))
+
+
+def _money_spoken_abs(a: int) -> str:
     if a >= 1_000_000_000:
         return f"{_trim(a / 1e9)} billion dollars"
     if a >= 1_000_000:

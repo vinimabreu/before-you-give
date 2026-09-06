@@ -201,7 +201,8 @@ def _people(f: Filing) -> list[Fact]:
         limit=(
             "Most charities deliver their work through people, so a high share is not "
             "a bad sign by itself. What matters is what those people do, and the filing "
-            "does not say."
+            "does not say. Benefits and pensions are not in this feed, so the real "
+            "people cost is a little higher."
         ),
     )]
 
@@ -264,8 +265,12 @@ def _fundraising(f: Filing) -> list[Fact]:
                 "staff sit inside the pay figure above."
             ),
         ))
-    if f.fundraising_gross is not None and f.fundraising_gross > 0:
-        costs = f.fundraising_direct_costs or 0
+    if (
+        f.fundraising_gross is not None
+        and f.fundraising_gross > 0
+        and f.fundraising_direct_costs is not None   # no costs on file, no fact: never assume zero
+    ):
+        costs = f.fundraising_direct_costs
         net = f.fundraising_gross - costs
         kept = _share(net, f.fundraising_gross)
         if kept is not None and net < 0:
@@ -361,13 +366,14 @@ def _caveats(org: Organization, latest: Filing | None, status: Status) -> tuple[
     if status == "foundation":
         out.append(
             "This is a private foundation. It mostly gives grants rather than running "
-            "programs, so pay and donation ratios mean something different here, and most "
-            "of them are not reported in this feed."
+            "programs, so its spending is largely grants paid out, and pay and donation "
+            "ratios mean something different from a charity that runs services."
         )
     if latest is not None and latest.form == "990-EZ":
         out.append(
             "It files the short form, 990-EZ, used by organizations under 200 thousand "
-            "dollars in receipts, so fewer details are reported."
+            "dollars in receipts. It carries fewer line items, so a fact missing above "
+            "may be unreported rather than zero."
         )
     out.append(
         "A tax filing does not measure impact. It cannot tell you whether the work is any "
