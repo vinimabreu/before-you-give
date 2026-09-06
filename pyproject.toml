@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "before-you-give"
+version = "0.1.0"
+description = "Hear what a nonprofit's public tax filings say before you donate. No score, no guessing: the numbers on file, what they mean, and what they cannot tell you."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Vinicius Pereira" }]
+keywords = ["nonprofit", "form 990", "donation", "charity", "propublica", "elevenlabs", "text to speech", "accessibility"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Typing :: Typed",
+]
+dependencies = ["fastapi>=0.115", "uvicorn>=0.30"]
+
+[project.urls]
+Homepage = "https://github.com/vinimabreu/before-you-give"
+Source = "https://github.com/vinimabreu/before-you-give"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+before_you_give = ["web/*.html"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "examples", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "RET", "PIE"]

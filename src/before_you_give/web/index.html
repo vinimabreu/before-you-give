@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Before You Give</title>
+<meta name="description" content="Hear what a nonprofit's public tax filings say before you donate. No score, no guessing.">
+<style>
+  :root {
+    --bg: #FBF7F0; --card: #FFFFFF; --ink: #1F1B16; --muted: #6B6259; --line: #E6DFD3;
+    --accent: #B4532A; --accent-ink: #FFFFFF; --good: #2F7D4F; --bad: #B23A3A; --soft: #F3EBDD;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 18px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  main { max-width: 800px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .lede { color: var(--muted); margin: 0 0 28px; font-size: 1.05rem; }
+  form { display: flex; gap: 8px; flex-wrap: wrap; }
+  input { font: inherit; padding: 14px 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); min-width: 0; }
+  input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  #q { flex: 1 1 320px; }
+  #state { flex: 0 0 92px; text-transform: uppercase; }
+  button { font: inherit; font-weight: 600; padding: 14px 20px; border: none; border-radius: 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  button:disabled { opacity: .55; cursor: default; }
+  .ghost { background: var(--soft); color: var(--ink); }
+  #status { min-height: 1.5em; color: var(--muted); margin: 12px 0 0; }
+  #results { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; }
+  #results button { width: 100%; text-align: left; background: var(--card); color: var(--ink); border: 2px solid var(--line); padding: 12px 16px; display: flex; justify-content: space-between; gap: 12px; }
+  #results button:hover { border-color: var(--accent); }
+  #results small { color: var(--muted); white-space: nowrap; }
+  section.org { margin-top: 32px; }
+  .head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; justify-content: space-between; }
+  .head h2 { font-size: 1.7rem; margin: 0; line-height: 1.15; }
+  .head .meta { color: var(--muted); margin: 4px 0 0; }
+  .listen { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+  .listen small { color: var(--muted); }
+  audio { width: 100%; margin-top: 8px; }
+  h3 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 32px 0 12px; }
+  .facts { display: grid; gap: 12px; }
+  .fact { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+  .fact .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .fact .label { color: var(--muted); font-size: .9rem; text-transform: uppercase; letter-spacing: .06em; }
+  .fact .value { font-weight: 700; font-size: 1.25rem; }
+  .fact p { margin: 8px 0 0; }
+  .fact .limit { color: var(--muted); font-size: .95rem; border-left: 3px solid var(--line); padding-left: 10px; margin-top: 10px; }
+  .caveats { background: var(--soft); border-radius: 14px; padding: 6px 18px; }
+  .caveats li { margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 8px 12px; border-top: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { border-top: none; color: var(--muted); font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
+  td.bar { width: 40%; }
+  .track { position: relative; height: 10px; background: var(--soft); border-radius: 5px; overflow: hidden; }
+  .track span { position: absolute; left: 0; top: 0; bottom: 0; }
+  .rev { background: var(--good); opacity: .85; }
+  .exp { background: var(--bad); opacity: .35; }
+  tr.deficit td:first-child::after { content: " deficit"; color: var(--bad); font-size: .8rem; }
+  .verify { margin-top: 20px; }
+  .verify a { color: var(--accent); }
+  .transcript { color: var(--muted); font-size: .95rem; white-space: pre-wrap; }
+  details summary { cursor: pointer; color: var(--muted); }
+  footer { margin-top: 48px; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); padding-top: 16px; }
+  footer a { color: inherit; }
+  .hidden { display: none !important; }
+  @media (max-width: 560px) { html { font-size: 17px; } h1 { font-size: 1.9rem; } th, td { padding: 6px 8px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Before you give</h1>
+  <p class="lede">Hear what a nonprofit's public tax filings say, in a minute or two. No score, no guessing: the numbers on file, what they mean, and what they can't tell you.</p>
+
+  <form id="search" role="search" aria-label="Find a nonprofit">
+    <input id="q" name="q" type="search" placeholder="Name of a US nonprofit, e.g. American Red Cross" required minlength="2" autocomplete="off" aria-label="Nonprofit name">
+    <input id="state" name="state" type="text" placeholder="State" maxlength="2" aria-label="Two letter state, optional">
+    <button type="submit">Search</button>
+  </form>
+  <p id="status" aria-live="polite"></p>
+  <ul id="results"></ul>
+
+  <section class="org hidden" id="org" aria-live="polite">
+    <div class="head">
+      <div>
+        <h2 id="name"></h2>
+        <p class="meta" id="meta"></p>
+      </div>
+      <div class="listen">
+        <button id="listen" type="button">Listen, a minute or two</button>
+        <small id="listenNote"></small>
+      </div>
+    </div>
+    <audio id="player" controls class="hidden" preload="none"></audio>
+
+    <h3 id="showsTitle">What the filings show</h3>
+    <div class="facts" id="facts"></div>
+
+    <h3>What they can't tell you</h3>
+    <ul class="caveats" id="caveats"></ul>
+
+    <div id="yearsWrap">
+      <h3>Year by year</h3>
+      <table id="years" aria-describedby="yearsNote">
+        <thead><tr><th>Fiscal year</th><th>Revenue</th><th>Expenses</th><th>Net assets</th><th class="bar">Revenue vs expenses</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p id="yearsNote" class="transcript">Green is revenue, red is expenses, both on the same scale.</p>
+    </div>
+
+    <p class="verify" id="verify"></p>
+
+    <details>
+      <summary>Read the narration</summary>
+      <p class="transcript" id="script"></p>
+    </details>
+  </section>
+
+  <footer>
+    Numbers come unchanged from the <a href="https://projects.propublica.org/nonprofits/" rel="noopener">ProPublica Nonprofit Explorer</a>, built on IRS Form 990 data. This page adds plain sentences and a voice, nothing else. It is free, keeps no account, and does not rate anyone.
+  </footer>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $("status"), results = $("results"), org = $("org"), player = $("player"), listen = $("listen");
+  let current = null, audioUrl = null;
+
+  const money = (n) => {
+    if (n === null || n === undefined) return "";
+    const a = Math.abs(n), s = n < 0 ? "-" : "";
+    if (a >= 1e9) return s + "$" + trim(a / 1e9) + "B";
+    if (a >= 1e6) return s + "$" + trim(a / 1e6) + "M";
+    if (a >= 1e5) return s + "$" + Math.round(a / 1e3) + "K";
+    return s + "$" + a.toLocaleString("en-US");
+  };
+  const trim = (x) => { const t = x.toFixed(1); return t.endsWith(".0") ? t.slice(0, -2) : t; };
+  const setStatus = (t) => { statusEl.textContent = t; };
+
+  $("search").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const q = $("q").value.trim(), state = $("state").value.trim().toUpperCase();
+    if (q.length < 2) return;
+    results.innerHTML = ""; org.classList.add("hidden");
+    setStatus("Searching…");
+    try {
+      const url = new URL("/api/search", location.origin);
+      url.searchParams.set("q", q);
+      if (state.length === 2) url.searchParams.set("state", state);
+      const r = await fetch(url);
+      if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+      const hits = (await r.json()).hits;
+      if (!hits.length) { setStatus("Nothing found with that name. Try fewer words, or add the state."); return; }
+      setStatus(hits.length === 1 ? "One match." : hits.length + " matches. Pick one.");
+      for (const h of hits) {
+        const li = document.createElement("li"), b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = `<span>${esc(h.name)}</span><small>${esc(h.city)}${h.city && h.state ? ", " : ""}${esc(h.state)} · EIN ${esc(h.ein_text)}</small>`;
+        b.addEventListener("click", () => load(h.ein));
+        li.appendChild(b); results.appendChild(li);
+      }
+      if (hits.length === 1) load(hits[0].ein);
+    } catch (err) { setStatus("Search failed: " + err.message); }
+  });
+
+  async function load(ein) {
+    setStatus("Reading the filings…");
+    stopAudio();
+    try {
+      const r = await fetch(`/api/org/${ein}`);
+      if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+      current = await r.json();
+      render(current);
+      setStatus("");
+      org.classList.remove("hidden");
+      org.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (err) { setStatus("Could not read this organization: " + err.message); }
+  }
+
+  function render(d) {
+    const o = d.organization, l = d.latest;
+    $("name").textContent = o.name;
+    const kind = o.subsection === 3 ? "501(c)(3)" : (o.subsection ? `501(c)(${o.subsection})` : "");
+    $("meta").textContent = [o.city && o.state ? `${o.city}, ${o.state}` : "", kind, `EIN ${o.ein_text}`,
+      l ? `latest filing: Form ${l.form}, fiscal year ending ${l.period_text}` : "no financial filings in the feed"].filter(Boolean).join(" · ");
+
+    const facts = $("facts"); facts.innerHTML = "";
+    $("showsTitle").classList.toggle("hidden", !d.facts.length);
+    for (const f of d.facts) {
+      const el = document.createElement("article"); el.className = "fact";
+      el.innerHTML = `<div class="top"><span class="label">${esc(f.label)}</span><span class="value">${esc(f.display)}</span></div>
+        <p>${esc(f.meaning)}</p><p class="limit">${esc(f.limit)}</p>`;
+      facts.appendChild(el);
+    }
+    const cav = $("caveats"); cav.innerHTML = "";
+    for (const c of d.caveats) { const li = document.createElement("li"); li.textContent = c; cav.appendChild(li); }
+
+    const rows = d.years.filter(y => y.revenue !== null && y.expenses !== null);
+    $("yearsWrap").classList.toggle("hidden", rows.length < 2);
+    const tb = $("years").querySelector("tbody"); tb.innerHTML = "";
+    const max = Math.max(1, ...rows.map(y => Math.max(y.revenue, y.expenses)));
+    for (const y of rows.slice().reverse()) {
+      const tr = document.createElement("tr"); if (y.deficit) tr.className = "deficit";
+      tr.innerHTML = `<td>${esc(y.period_text)}</td><td>${money(y.revenue)}</td><td>${money(y.expenses)}</td><td>${money(y.net_assets)}</td>
+        <td class="bar"><div class="track"><span class="exp" style="width:${pct(y.expenses, max)}%"></span><span class="rev" style="width:${pct(y.revenue, max)}%;height:50%"></span></div></td>`;
+      tb.appendChild(tr);
+    }
+
+    const v = $("verify");
+    const links = [`<a href="${esc(o.propublica_url)}" rel="noopener">the organization's page on ProPublica</a>`];
+    if (l && l.pdf_url) links.unshift(`<a href="${esc(l.pdf_url)}" rel="noopener">the filing itself (PDF)</a>`);
+    v.innerHTML = "Check the numbers yourself: " + links.join(" and ") + ".";
+
+    $("script").textContent = d.script;
+    listen.disabled = !d.audio_available;
+    $("listenNote").textContent = d.audio_available ? (d.audio_cached ? "" : "First play prepares the audio, a few seconds.") : "Audio is off on this server. The narration is written out below.";
+    player.classList.add("hidden");
+  }
+
+  listen.addEventListener("click", async () => {
+    if (!current) return;
+    listen.disabled = true; $("listenNote").textContent = "Preparing the audio…";
+    try {
+      const r = await fetch(`/api/org/${current.organization.ein}/audio.mp3`);
+      if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+      stopAudio();
+      audioUrl = URL.createObjectURL(await r.blob());
+      player.src = audioUrl; player.classList.remove("hidden");
+      await player.play();
+      $("listenNote").textContent = "";
+    } catch (err) { $("listenNote").textContent = "Could not play: " + err.message; }
+    finally { listen.disabled = false; }
+  });
+
+  function stopAudio() { try { player.pause(); } catch (_) {} if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; } }
+  const pct = (v, max) => Math.max(0, Math.min(100, Math.round(100 * Math.max(0, v) / max)));
+  function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+  const params = new URLSearchParams(location.search);
+  if (params.get("ein")) load(params.get("ein"));
+})();
+</script>
+</body>
+</html>
