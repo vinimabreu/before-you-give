@@ -9,7 +9,7 @@ Type the name of a US nonprofit and hear, in a minute or two, what its public ta
 
 No score. No ranking. No language model writing the numbers.
 
-**Live:** https://give.69-62-103-205.sslip.io
+**Live:** https://before-you-give.vercel.app
 
 ![before-you-give](assets/before-you-give.png)
 
