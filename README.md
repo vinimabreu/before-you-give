@@ -68,6 +68,8 @@ Environment:
 | `BYG_TTS_MODEL` | `eleven_turbo_v2_5` | model id |
 | `BYG_TTS_MAX_CALLS` | `200` | narrations this process may buy |
 | `BYG_TTS_MAX_CHARS` | `200000` | characters this process may buy |
+| `BLOB_READ_WRITE_TOKEN` | unset | store narrations in Vercel Blob instead of on disk (serverless); the call ceiling then counts narrations stored |
+| `BYG_TRUST_PROXY` | unset | `1` behind nginx or Vercel, so the per-address limiter sees the real address |
 
 ## Layout
 
@@ -77,7 +79,8 @@ src/before_you_give/
   reading.py      facts with limits; the arithmetic, all of it
   format.py       one rendering for the eye, one for the voice
   narration.py    the deterministic script
-  speech.py       ElevenLabs with cache and cap
+  speech.py       ElevenLabs with cache and cap; disk store or Vercel Blob
+api/index.py      the same app as a Vercel function
   app.py          FastAPI: /, /api/search, /api/org/{ein}, /api/org/{ein}/audio.mp3
   web/index.html  the page, no build step
 tests/fixtures/   real API responses: two 990s, a 990-EZ, a 990-PF, an org with no filings

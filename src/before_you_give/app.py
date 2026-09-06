@@ -1,6 +1,7 @@
 """HTTP surface: one page, three JSON routes, one audio route."""
 from __future__ import annotations
 
+import os
 import threading
 import time
 import urllib.error
@@ -75,14 +76,29 @@ def reading_payload(reading: Reading) -> dict[str, Any]:
     }
 
 
+def client_address(request: Request, trust_proxy: bool) -> str:
+    """Behind nginx or Vercel the proxy writes the real address into X-Real-IP."""
+    if trust_proxy:
+        real = request.headers.get("x-real-ip", "").strip()
+        if real:
+            return real
+        forwarded = request.headers.get("x-forwarded-for", "")
+        if forwarded:
+            return forwarded.split(",")[-1].strip()
+    return request.client.host if request.client else "unknown"
+
+
 def create_app(
     client: Client | None = None,
     speech: Speech | None = None,
     *,
     cache_dir: Path | None = None,
     limiter: Limiter | None = None,
+    trust_proxy: bool | None = None,
 ) -> FastAPI:
     cache_dir = cache_dir or Path(".cache")
+    if trust_proxy is None:
+        trust_proxy = os.environ.get("BYG_TRUST_PROXY", "").strip() in ("1", "true", "yes")
     client = client or Client(cache=JsonCache(cache_dir / "propublica"))
     speech = speech if speech is not None else maybe_speech(cache_dir / "audio")
     limiter = limiter or Limiter()
@@ -153,7 +169,7 @@ def create_app(
         reading = _reading(ein)
         text = script(reading)
         if not speech.cached(text):
-            who = request.client.host if request.client else "unknown"
+            who = client_address(request, trust_proxy)
             if not limiter.allow(who):
                 raise HTTPException(429, "too many new narrations from this address; try later")
         try:
@@ -166,4 +182,15 @@ def create_app(
     return app
 
 
-app = create_app()
+_default: FastAPI | None = None
+
+
+def __getattr__(name: str) -> Any:
+    """`uvicorn before_you_give.app:app` builds the default app on first use, so
+    importing this module touches neither the disk nor the environment."""
+    global _default
+    if name == "app":
+        if _default is None:
+            _default = create_app()
+        return _default
+    raise AttributeError(name)

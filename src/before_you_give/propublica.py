@@ -242,7 +242,6 @@ class JsonCache:
         self.directory = directory
         self.ttl = ttl_seconds
         self.max_files = max_files
-        self.directory.mkdir(parents=True, exist_ok=True)
 
     def _path(self, key: str) -> Path:
         stem = re.sub(r"[^A-Za-z0-9_-]", "_", key)[:40]
@@ -259,6 +258,7 @@ class JsonCache:
             return None
 
     def put(self, key: str, data: dict[str, Any]) -> None:
+        self.directory.mkdir(parents=True, exist_ok=True)
         path = self._path(key)
         tmp = path.with_name(f"{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
         tmp.write_text(json.dumps(data), encoding="utf-8")
@@ -267,7 +267,7 @@ class JsonCache:
 
     def sweep(self, force: bool = False) -> int:
         """Delete expired entries once the directory is bigger than max_files."""
-        entries = list(self.directory.glob("*.json"))
+        entries = list(self.directory.glob("*.json")) if self.directory.exists() else []
         if not force and len(entries) <= self.max_files:
             return 0
         now = time.time()

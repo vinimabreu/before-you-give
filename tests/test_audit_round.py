@@ -224,3 +224,29 @@ def test_ez_fixture_carries_no_person_names():
     path = Path(__file__).parent / "fixtures" / "food_pantry_990ez_833988191.json"
     data = json.loads(path.read_text())
     assert not data["organization"].get("careofname")
+
+
+def test_client_address_trusts_proxy_headers_only_when_told(tmp_path: Path):
+    from before_you_give.app import client_address
+
+    class Req:
+        def __init__(self, headers, host):
+            self.headers = headers
+            self.client = type("C", (), {"host": host})()
+
+    r = Req({"x-real-ip": "9.9.9.9", "x-forwarded-for": "1.1.1.1, 9.9.9.9"}, "127.0.0.1")
+    assert client_address(r, trust_proxy=False) == "127.0.0.1"
+    assert client_address(r, trust_proxy=True) == "9.9.9.9"
+    forwarded_only = Req({"x-forwarded-for": "1.1.1.1, 8.8.8.8"}, "127.0.0.1")
+    assert client_address(forwarded_only, True) == "8.8.8.8"
+    assert client_address(Req({}, "5.5.5.5"), True) == "5.5.5.5"
+
+
+def test_importing_the_app_module_does_not_touch_the_disk(tmp_path: Path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    import importlib
+
+    import before_you_give.app as m
+    importlib.reload(m)
+    assert not (tmp_path / ".cache").exists()
+    assert m.app is m.app          # built once, on first access
