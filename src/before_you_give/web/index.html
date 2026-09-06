@@ -3,158 +3,352 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Before You Give</title>
+<title>Before you give</title>
 <meta name="description" content="Hear what a nonprofit's public tax filings say before you donate. No score, no guessing.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Before you give">
 <meta property="og:description" content="Hear what a nonprofit's public tax filings say before you donate. No score, no guessing.">
 <meta property="og:image" content="https://raw.githubusercontent.com/vinimabreu/before-you-give/main/assets/before-you-give.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #FBF7F0; --card: #FFFFFF; --ink: #1F1B16; --muted: #6B6259; --line: #E6DFD3;
-    --accent: #B4532A; --accent-ink: #FFFFFF; --good: #2F7D4F; --bad: #B23A3A; --soft: #F3EBDD;
+    --paper: #e9e5dc; --card-ground: #f2efe8; --white: #fff; --ink: #1c1b19; --muted: #6b665e;
+    --body: #4a463f; --body-strong: #2f2c27; --line: rgba(0,0,0,.1); --line-soft: rgba(0,0,0,.08);
+    --teal: #0f6b6b; --teal-dark: #0a4c4c; --green: #2e7d4f; --red: #b5432f; --cream: #f2efe8;
   }
   * { box-sizing: border-box; }
-  html { font-size: 18px; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
-  main { max-width: 800px; margin: 0 auto; padding: 32px 20px 80px; }
-  h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 8px; letter-spacing: -0.02em; }
-  .lede { color: var(--muted); margin: 0 0 28px; font-size: 1.05rem; }
-  form { display: flex; gap: 8px; flex-wrap: wrap; }
-  input { font: inherit; padding: 14px 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); min-width: 0; }
-  input:focus, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-  #q { flex: 1 1 320px; }
-  #state { flex: 0 0 92px; text-transform: uppercase; }
-  button { font: inherit; font-weight: 600; padding: 14px 20px; border: none; border-radius: 12px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
-  button:disabled { opacity: .55; cursor: default; }
-  .ghost { background: var(--soft); color: var(--ink); }
-  #status { min-height: 1.5em; color: var(--muted); margin: 12px 0 0; }
-  #results { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; }
-  #results button { width: 100%; text-align: left; background: var(--card); color: var(--ink); border: 2px solid var(--line); padding: 12px 16px; display: flex; justify-content: space-between; gap: 12px; }
-  #results button:hover { border-color: var(--accent); }
-  #results small { color: var(--muted); white-space: nowrap; }
-  section.org { margin-top: 32px; }
-  .head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; justify-content: space-between; }
-  .head h2 { font-size: 1.7rem; margin: 0; line-height: 1.15; }
-  .head .meta { color: var(--muted); margin: 4px 0 0; }
-  .listen { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-  .listen small { color: var(--muted); }
-  audio { width: 100%; margin-top: 8px; }
-  h3 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 32px 0 12px; }
-  .facts { display: grid; gap: 12px; }
-  .fact { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
-  .fact .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
-  .fact .label { color: var(--muted); font-size: .9rem; text-transform: uppercase; letter-spacing: .06em; }
-  .fact .value { font-weight: 700; font-size: 1.25rem; }
-  .fact p { margin: 8px 0 0; }
-  .fact .limit { color: var(--muted); font-size: .95rem; border-left: 3px solid var(--line); padding-left: 10px; margin-top: 10px; }
-  .caveats { background: var(--soft); border-radius: 14px; padding: 6px 18px; }
-  .caveats li { margin: 12px 0; }
-  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; font-variant-numeric: tabular-nums; }
-  th, td { text-align: right; padding: 8px 12px; border-top: 1px solid var(--line); }
-  th:first-child, td:first-child { text-align: left; }
-  thead th { border-top: none; color: var(--muted); font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
-  td.bar { width: 40%; }
-  .track { position: relative; height: 10px; background: var(--soft); border-radius: 5px; overflow: hidden; }
-  .track span { position: absolute; left: 0; top: 0; bottom: 0; }
-  .rev { background: var(--good); opacity: .85; }
-  .exp { background: var(--bad); opacity: .35; }
-  tr.deficit td:first-child::after { content: " deficit"; color: var(--bad); font-size: .8rem; }
-  .verify { margin-top: 20px; }
-  .verify a { color: var(--accent); }
-  .transcript { color: var(--muted); font-size: .95rem; white-space: pre-wrap; }
-  details summary { cursor: pointer; color: var(--muted); }
-  footer { margin-top: 48px; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); padding-top: 16px; }
-  footer a { color: inherit; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Work Sans", system-ui, -apple-system, sans-serif; line-height: 1.5; }
+  a { color: var(--teal); }
+  a:hover { color: var(--teal-dark); }
+  button { font: inherit; cursor: pointer; }
+  button:disabled { cursor: default; opacity: .55; }
+  :focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+  .serif { font-family: Lora, Georgia, serif; }
   .hidden { display: none !important; }
-  @media (max-width: 560px) { html { font-size: 17px; } h1 { font-size: 1.9rem; } th, td { padding: 6px 8px; } }
+  .page { background: var(--card-ground); min-height: 100vh; }
+  @keyframes wave { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+
+  /* header */
+  header { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 20px 64px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); flex: none; }
+  .brand .dot { width: 28px; height: 28px; border-radius: 50%; background: var(--teal); display: grid; place-items: center; }
+  .brand .dot i { width: 0; height: 0; border-left: 9px solid var(--cream); border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; margin-left: 2px; }
+  .brand span { font-family: Lora, serif; font-size: 18px; font-weight: 600; }
+  nav { display: flex; gap: 28px; font-size: 14px; color: var(--muted); }
+  nav a { color: inherit; text-decoration: none; }
+  nav a:hover { color: var(--ink); }
+  .pill { display: flex; align-items: center; gap: 10px; background: var(--white); border: 1px solid rgba(0,0,0,.14); border-radius: 999px; padding: 6px 6px 6px 18px; }
+  .pill input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 15px; color: var(--ink); padding: 8px 4px; }
+  .pill input:focus { outline: none; }
+  .pill button { border: 0; background: var(--teal); color: #fff; font-weight: 600; font-size: 14px; padding: 10px 18px; border-radius: 999px; }
+  .pill button:hover { background: var(--teal-dark); }
+  #headSearch { width: 420px; max-width: 42vw; }
+
+  /* landing */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; padding: 96px 64px 80px; align-items: center; }
+  .hero-copy { display: flex; flex-direction: column; gap: 28px; }
+  .eyebrow { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: var(--teal); }
+  .hero h1 { margin: 0; font-family: Lora, serif; font-weight: 500; font-size: clamp(38px, 5vw, 68px); line-height: 1.02; letter-spacing: -.015em; text-wrap: pretty; }
+  .hero p { margin: 0; font-size: 19px; line-height: 1.55; color: var(--body); max-width: 520px; text-wrap: pretty; }
+  .hero .pill { border: 1.5px solid var(--ink); padding: 6px 6px 6px 22px; max-width: 560px; box-shadow: 0 8px 30px rgba(0,0,0,.06); }
+  .hero .pill input { font-size: 17px; padding: 12px 14px; }
+  .hero .pill button { font-size: 15px; padding: 14px 26px; }
+  .try { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--muted); align-items: center; }
+  .try button { padding: 6px 12px; border: 1px solid rgba(0,0,0,.14); border-radius: 999px; background: transparent; color: var(--ink); font-size: 13px; }
+  .try button:hover { border-color: var(--ink); }
+  .orb-wrap { display: flex; justify-content: center; }
+  .orb { width: min(440px, 80vw); aspect-ratio: 1; border-radius: 50%; background: var(--white); border: 1px solid var(--line-soft); display: grid; place-items: center; position: relative; box-shadow: 0 30px 80px rgba(15,107,107,.14); }
+  .orb::before { content: ""; position: absolute; inset: 8%; border-radius: 50%; border: 1px dashed rgba(15,107,107,.35); }
+  .orb-inner { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .wave { display: flex; align-items: center; gap: 4px; height: 64px; overflow: hidden; min-width: 0; }
+  .wave i { display: block; width: 3px; border-radius: 2px; background: var(--teal); transform-origin: center; animation: wave 1s ease-in-out infinite; }
+  .orb-play { width: 88px; height: 88px; border-radius: 50%; background: var(--teal); border: 0; display: grid; place-items: center; box-shadow: 0 12px 30px rgba(15,107,107,.35); }
+  .orb-play i { width: 0; height: 0; border-left: 26px solid #fff; border-top: 15px solid transparent; border-bottom: 15px solid transparent; margin-left: 6px; }
+  .orb-caption { font-family: Lora, serif; font-style: italic; font-size: 19px; color: var(--body); }
+  .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding: 0 64px 72px; }
+  .how > div { border-top: 1px solid var(--ink); padding-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .how h3 { margin: 0; font-family: Lora, serif; font-weight: 400; font-size: 22px; }
+  .how p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+  footer { padding: 22px 64px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.5; color: var(--muted); }
+  #status { padding: 0 64px; min-height: 1.6em; color: var(--muted); font-size: 15px; }
+  #results { list-style: none; margin: 0; padding: 8px 64px 0; display: grid; gap: 8px; max-width: 760px; }
+  #results button { width: 100%; text-align: left; background: var(--white); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+  #results button:hover { border-color: var(--teal); }
+  #results small { color: var(--muted); white-space: nowrap; }
+
+  /* results */
+  .org-head { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 72px; padding: 56px 64px 0; align-items: start; }
+  .org-title { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .org-title .eyebrow { color: var(--muted); }
+  .org-title h1 { margin: 0; font-family: Lora, serif; font-weight: 500; font-size: clamp(30px, 4vw, 52px); line-height: 1.05; letter-spacing: -.015em; overflow-wrap: anywhere; }
+  .org-title p { margin: 0; font-size: 17px; color: var(--body); line-height: 1.5; }
+  .player { min-width: 0; background: var(--ink); color: var(--cream); border-radius: 20px; padding: 26px 28px; display: flex; flex-direction: column; gap: 22px; box-shadow: 0 24px 60px rgba(0,0,0,.18); }
+  .player .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .player .top span:first-child { font-family: Lora, serif; font-style: italic; font-size: 17px; }
+  .player .time { font-size: 13px; color: rgba(242,239,232,.6); font-variant-numeric: tabular-nums; }
+  .player .wave { gap: 3px; height: 44px; }
+  .player .wave i { background: rgba(242,239,232,.85); animation-play-state: paused; }
+  .player.playing .wave i { animation-play-state: running; }
+  .player .row { display: flex; align-items: center; gap: 18px; }
+  .play { width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--cream); display: grid; place-items: center; flex: none; }
+  .play .tri { width: 0; height: 0; border-left: 18px solid var(--ink); border-top: 10px solid transparent; border-bottom: 10px solid transparent; margin-left: 4px; }
+  .play .bars { display: none; gap: 5px; }
+  .play .bars i { display: block; width: 6px; height: 20px; background: var(--ink); border-radius: 2px; }
+  .player.playing .play .tri { display: none; }
+  .player.playing .play .bars { display: flex; }
+  .progress { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .track { height: 3px; background: rgba(242,239,232,.2); border-radius: 2px; position: relative; cursor: pointer; }
+  .track b { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--cream); border-radius: 2px; }
+  .now { font-size: 12px; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rate { font-size: 13px; color: rgba(242,239,232,.7); border: 1px solid rgba(242,239,232,.25); border-radius: 999px; padding: 5px 10px; background: transparent; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: rgba(242,239,232,.6); }
+  .chips button { padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(242,239,232,.2); background: transparent; color: inherit; font-size: 12px; }
+  .chips button.on { background: rgba(242,239,232,.14); color: var(--cream); border-color: transparent; }
+  .player .note { font-size: 13px; color: rgba(242,239,232,.7); line-height: 1.5; }
+
+  .org-body { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 72px; padding: 56px 64px 0; align-items: start; }
+  .main { display: flex; flex-direction: column; gap: 40px; min-width: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .stat { background: var(--white); border: 1px solid var(--line-soft); border-radius: 14px; padding: 22px 24px; display: flex; flex-direction: column; gap: 6px; }
+  .stat .k { font-size: 13px; color: var(--muted); }
+  .stat .v { font-family: Lora, serif; font-size: clamp(26px, 2.6vw, 34px); letter-spacing: -.01em; }
+  .stat .d { font-size: 13px; color: var(--muted); }
+  .stat .up { color: var(--green); } .stat .down { color: var(--red); }
+  section.block { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--ink); padding-top: 22px; }
+  section.block h3 { margin: 0; font-family: Lora, serif; font-weight: 500; font-size: 26px; }
+  section.block p { margin: 0; font-size: 17px; line-height: 1.65; color: var(--body-strong); max-width: 640px; text-wrap: pretty; }
+  .limits { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; max-width: 640px; }
+  .limits li { font-size: 14px; line-height: 1.5; color: var(--muted); padding-left: 12px; border-left: 2px solid rgba(0,0,0,.12); }
+  .limits li b { color: var(--body); font-weight: 600; }
+  .legend { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .legend .keys { display: flex; gap: 18px; font-size: 13px; color: var(--muted); }
+  .legend .keys span { display: flex; align-items: center; gap: 6px; }
+  .legend .keys i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .chart { display: grid; gap: 14px; align-items: end; height: 220px; border-bottom: 1px solid rgba(0,0,0,.2); }
+  .chart .yr { display: flex; gap: 4px; align-items: end; height: 100%; }
+  .chart .yr i { flex: 1; border-radius: 3px 3px 0 0; display: block; min-height: 1px; }
+  .chart .yr .r { background: var(--green); } .chart .yr .e { background: var(--red); }
+  .chart-labels { display: grid; gap: 14px; font-size: 12px; color: var(--muted); text-align: center; }
+  .chart-note { font-size: 13px; color: var(--muted); }
+  .table { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--white); font-variant-numeric: tabular-nums; }
+  .table .tr { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr 1.6fr; padding: 13px 18px; font-size: 15px; border-bottom: 1px solid rgba(0,0,0,.06); gap: 8px; }
+  .table .tr:last-child { border-bottom: 0; }
+  .table .th { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); padding: 12px 18px; }
+  .table .tr > div { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .table .tr > div:first-child { text-align: left; font-weight: 500; }
+  .pos { color: var(--green); } .neg { color: var(--red); }
+  .side { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 24px; }
+  .narration { background: var(--white); border: 1px solid var(--line-soft); border-radius: 14px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .narration .top { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+  .narration .top b { font-weight: 600; }
+  .narration .top span { font-size: 13px; color: var(--teal); }
+  .narration p { margin: 0; font-family: Lora, serif; font-size: 16px; line-height: 1.7; color: var(--body); max-height: 60vh; overflow: auto; }
+  .narration p mark { background: rgba(15,107,107,.12); color: var(--ink); border-radius: 3px; }
+  .verify { font-size: 13px; line-height: 1.55; color: var(--muted); padding: 0 4px; }
+  .spacer { height: 64px; }
+
+  /* mobile mini player */
+  .mini { position: fixed; left: 16px; right: 16px; bottom: 16px; background: var(--ink); color: var(--cream); border-radius: 999px; padding: 8px 8px 8px 18px; display: none; align-items: center; gap: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.25); z-index: 5; }
+  .mini .col { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .mini .now { font-size: 12px; }
+  .mini .track { height: 2px; }
+  .mini .t { font-size: 11px; color: rgba(242,239,232,.6); }
+  .mini .play { width: 40px; height: 40px; }
+  .mini .play .tri { border-left-width: 13px; border-top-width: 7px; border-bottom-width: 7px; }
+  .mini .play .bars i { width: 4px; height: 14px; }
+
+  @media (max-width: 960px) {
+    header, footer, #status { padding-left: 20px; padding-right: 20px; }
+    #results { padding: 8px 20px 0; }
+    nav { display: none; }
+    #headSearch { max-width: none; width: auto; flex: 1; }
+    .hero { grid-template-columns: minmax(0, 1fr); gap: 40px; padding: 48px 20px 40px; }
+    .how { grid-template-columns: 1fr; gap: 24px; padding: 0 20px 48px; }
+    .org-head, .org-body { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 28px 20px 0; }
+    .player .wave { justify-content: center; }
+    .side { position: static; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat:last-child { grid-column: 1 / -1; }
+    .chart { height: 140px; gap: 8px; } .chart-labels { gap: 8px; font-size: 10px; }
+    .table .tr { grid-template-columns: 1fr 1fr 1fr; font-size: 14px; padding: 11px 12px; }
+    .table .tr > div:nth-child(4), .table .tr > div:nth-child(5) { display: none; }
+    body.playing .mini { display: flex; }
+    body.playing .spacer { height: 110px; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>Before you give</h1>
-  <p class="lede">Hear what a nonprofit's public tax filings say, in a minute or two. No score, no guessing: the numbers on file, what they mean, and what they can't tell you.</p>
+<div class="page">
+  <header>
+    <a class="brand" href="/" id="brand"><span class="dot"><i></i></span><span>Before you give</span></a>
+    <form class="pill hidden" id="headSearch" role="search" aria-label="Find a nonprofit">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b665e" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input id="q2" type="search" placeholder="Search by name or EIN" autocomplete="off" aria-label="Nonprofit name or EIN">
+      <button type="submit">Search</button>
+    </form>
+    <nav><a href="/#how" id="navHow">How it works</a><a href="https://projects.propublica.org/nonprofits/" rel="noopener">Data source</a></nav>
+  </header>
 
-  <form id="search" role="search" aria-label="Find a nonprofit">
-    <input id="q" name="q" type="search" placeholder="Name of a US nonprofit, e.g. American Red Cross" required minlength="2" autocomplete="off" aria-label="Nonprofit name">
-    <input id="state" name="state" type="text" placeholder="State" maxlength="2" aria-label="Two letter state, optional">
-    <button type="submit">Search</button>
-  </form>
+  <section id="landing">
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Free · No account · No ratings</div>
+        <h1>Hear what a nonprofit's public tax filings say, in a minute or two.</h1>
+        <p>No score, no guessing: the numbers on file, what they mean, and what they can't tell you.</p>
+        <form class="pill" id="search" role="search" aria-label="Find a nonprofit">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b665e" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input id="q" type="search" placeholder="Search by name or EIN" required minlength="2" autocomplete="off" aria-label="Nonprofit name or EIN">
+          <button type="submit">Search</button>
+        </form>
+        <div class="try"><span>Try</span>
+          <button type="button" data-ein="133433452">Doctors Without Borders</button>
+          <button type="button" data-ein="363673599">Feeding America</button>
+          <button type="button" data-ein="530196605">53-0196605</button>
+        </div>
+      </div>
+      <div class="orb-wrap">
+        <div class="orb"><div class="orb-inner">
+          <div class="wave" id="heroWave" aria-hidden="true"></div>
+          <button class="orb-play" type="button" id="orbPlay" aria-label="Listen to an example"><i></i></button>
+          <div class="orb-caption">Listen, a minute or two</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="how" id="how">
+      <div><h3>What the filings show</h3><p>Revenue, expenses and net assets from the IRS Form 990, read out in plain sentences.</p></div>
+      <div><h3>What they can't tell you</h3><p>Filings don't measure impact or honesty. The page says so, every time.</p></div>
+      <div><h3>Year by year</h3><p>Every filed year on one scale, green for revenue and red for expenses.</p></div>
+    </div>
+  </section>
+
   <p id="status" aria-live="polite"></p>
   <ul id="results"></ul>
 
-  <section class="org hidden" id="org" aria-live="polite">
-    <div class="head">
-      <div>
-        <h2 id="name"></h2>
-        <p class="meta" id="meta"></p>
+  <section id="org" class="hidden" aria-live="polite">
+    <div class="org-head">
+      <div class="org-title">
+        <div class="eyebrow" id="meta"></div>
+        <h1 id="name"></h1>
+        <p id="sub"></p>
       </div>
-      <div class="listen">
-        <button id="listen" type="button">Listen, a minute or two</button>
-        <small id="listenNote"></small>
+      <div class="player" id="player">
+        <div class="top"><span>Listen, a minute or two</span><span class="time" id="time">0:00 / 0:00</span></div>
+        <div class="wave" id="playerWave" aria-hidden="true"></div>
+        <div class="row">
+          <button class="play" id="playBtn" type="button" aria-label="Play"><span class="tri"></span><span class="bars"><i></i><i></i></span></button>
+          <div class="progress"><div class="track" id="track"><b id="bar"></b></div><div class="now" id="now">Ready when you are</div></div>
+          <button class="rate" id="rate" type="button" aria-label="Playback speed">1×</button>
+        </div>
+        <div class="chips" id="chips">
+          <button type="button" data-sec="show">What the filings show</button>
+          <button type="button" data-sec="cant">What they can't tell you</button>
+          <button type="button" data-sec="years">Year by year</button>
+        </div>
+        <div class="note hidden" id="playerNote"></div>
+        <audio id="audio" preload="none"></audio>
       </div>
     </div>
-    <audio id="player" controls class="hidden" preload="none"></audio>
 
-    <h3 id="showsTitle">What the filings show</h3>
-    <div class="facts" id="facts"></div>
-
-    <h3>What they can't tell you</h3>
-    <ul class="caveats" id="caveats"></ul>
-
-    <div id="yearsWrap">
-      <h3>Year by year</h3>
-      <table id="years" aria-describedby="yearsNote">
-        <thead><tr><th>Fiscal year</th><th>Revenue</th><th>Expenses</th><th>Net assets</th><th class="bar">Revenue vs expenses</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <p id="yearsNote" class="transcript">Green is revenue, red is expenses, both on the same scale.</p>
+    <div class="org-body">
+      <div class="main">
+        <div class="stats" id="stats"></div>
+        <section class="block" id="secShow">
+          <h3>What the filings show</h3>
+          <p id="showText"></p>
+          <ul class="limits" id="limits"></ul>
+        </section>
+        <section class="block" id="secCant">
+          <h3>What they can't tell you</h3>
+          <div id="cantText"></div>
+        </section>
+        <section class="block" id="secYears">
+          <div class="legend"><h3>Year by year</h3><div class="keys"><span><i style="background:var(--green)"></i>Revenue</span><span><i style="background:var(--red)"></i>Expenses</span></div></div>
+          <div class="chart" id="chart"></div>
+          <div class="chart-labels" id="chartLabels"></div>
+          <div class="chart-note">Green is revenue, red is expenses, both on the same scale.</div>
+          <div class="table" id="table"></div>
+        </section>
+      </div>
+      <aside class="side">
+        <div class="narration">
+          <div class="top"><b>Read the narration</b><span id="follow">Follow along</span></div>
+          <p id="script"></p>
+        </div>
+        <div class="verify" id="verify"></div>
+      </aside>
     </div>
-
-    <p class="verify" id="verify"></p>
-
-    <details>
-      <summary>Read the narration</summary>
-      <p class="transcript" id="script"></p>
-    </details>
+    <div class="spacer"></div>
   </section>
 
-  <footer>
-    Numbers come unchanged from the <a href="https://projects.propublica.org/nonprofits/" rel="noopener">ProPublica Nonprofit Explorer</a>, built on IRS Form 990 data. This page adds plain sentences and a voice, nothing else. It is free, keeps no account, and does not rate anyone.
-  </footer>
-</main>
+  <footer id="footer">Numbers come unchanged from the <a href="https://projects.propublica.org/nonprofits/" rel="noopener">ProPublica Nonprofit Explorer</a>, built on IRS Form 990 data. This page adds plain sentences and a voice, nothing else. It is free, keeps no account, and does not rate anyone.</footer>
+</div>
+
+<div class="mini" id="mini">
+  <div class="col"><div class="now" id="miniNow">Now: what the filings show</div><div class="track" id="miniTrack"><b id="miniBar"></b></div></div>
+  <span class="t" id="miniTime">0:00</span>
+  <button class="play" id="miniPlay" type="button" aria-label="Pause"><span class="tri"></span><span class="bars"><i></i><i></i></span></button>
+</div>
+
 <script>
 (() => {
   const $ = (id) => document.getElementById(id);
-  const statusEl = $("status"), results = $("results"), org = $("org"), player = $("player"), listen = $("listen");
-  let current = null, audioUrl = null;
+  const statusEl = $("status"), results = $("results"), landing = $("landing"), org = $("org");
+  const audio = $("audio"), player = $("player");
+  let current = null, audioUrl = null, sentences = [], cantIndex = 0, rates = [1, 1.25, 1.5], rateIx = 0;
 
+  // ---- waves (design: bars from a sine/cos pattern) ----
+  function wave(el, n, maxH) {
+    el.innerHTML = "";
+    for (let i = 0; i < n; i++) {
+      const h = Math.round(maxH * (0.3 + 0.7 * Math.abs(Math.sin(i * 0.9 + 1) * Math.cos(i * 0.37))));
+      const b = document.createElement("i");
+      b.style.height = h + "px";
+      b.style.animationDuration = (1 + (i % 5) * 0.18) + "s";
+      b.style.animationDelay = ((i % 7) * 0.09) + "s";
+      el.appendChild(b);
+    }
+  }
+  wave($("heroWave"), 28, 64);
+  wave($("playerWave"), 56, 44);
+
+  // ---- helpers ----
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const trim = (x) => { const t = x.toFixed(2).replace(/0+$/, "").replace(/\.$/, ""); return t; };
   const money = (n) => {
     if (n === null || n === undefined) return "";
     const a = Math.abs(n), s = n < 0 ? "-" : "";
     if (a >= 1e9) return s + "$" + trim(a / 1e9) + "B";
     if (a >= 1e6) return s + "$" + trim(a / 1e6) + "M";
-    if (a >= 1e5) return s + "$" + Math.round(a / 1e3) + "K";
+    if (a >= 1e3) return s + "$" + Math.round(a / 1e3) + "K";
     return s + "$" + a.toLocaleString("en-US");
   };
-  const trim = (x) => { const t = x.toFixed(1); return t.endsWith(".0") ? t.slice(0, -2) : t; };
+  const mmss = (t) => { if (!isFinite(t)) return "0:00"; const m = Math.floor(t / 60), s = Math.floor(t % 60); return m + ":" + (s < 10 ? "0" : "") + s; };
   const setStatus = (t) => { statusEl.textContent = t; };
+  const isEin = (s) => /^\s*\d{2}-?\d{6,7}\s*$/.test(s);
+  async function reason(r) {
+    try { const b = await r.json(); if (b && b.detail) return b.detail; } catch (_) {}
+    return r.status === 429 ? "too many requests from this address, wait a minute and try again" : (r.statusText || ("HTTP " + r.status));
+  }
 
-  $("search").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const q = $("q").value.trim(), state = $("state").value.trim().toUpperCase();
+  // ---- search ----
+  async function search(q) {
+    q = q.trim();
     if (q.length < 2) return;
+    if (isEin(q)) return load(q.replace(/\s/g, ""));
     results.innerHTML = ""; org.classList.add("hidden");
     setStatus("Searching…");
     try {
       const url = new URL("/api/search", location.origin);
       url.searchParams.set("q", q);
-      if (state.length === 2) url.searchParams.set("state", state);
       const r = await fetch(url);
       if (!r.ok) throw new Error(await reason(r));
       const hits = (await r.json()).hits;
-      if (!hits.length) { setStatus("Nothing found with that name. Try fewer words, or add the state."); return; }
-      setStatus(hits.length === 1 ? "One match." : hits.length + " matches. Pick one.");
+      if (!hits.length) { setStatus("Nothing found with that name. Try fewer words, or the EIN."); return; }
+      if (hits.length === 1) return load(hits[0].ein_text);
+      setStatus(hits.length + " matches. Pick one.");
       for (const h of hits) {
         const li = document.createElement("li"), b = document.createElement("button");
         b.type = "button";
@@ -162,89 +356,178 @@
         b.addEventListener("click", () => load(h.ein_text));
         li.appendChild(b); results.appendChild(li);
       }
-      if (hits.length === 1) load(hits[0].ein);
+      results.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } catch (err) { setStatus("Search failed: " + err.message); }
-  });
+  }
+  $("search").addEventListener("submit", (e) => { e.preventDefault(); search($("q").value); });
+  $("headSearch").addEventListener("submit", (e) => { e.preventDefault(); search($("q2").value); });
+  document.querySelectorAll(".try button").forEach(b => b.addEventListener("click", () => load(b.dataset.ein)));
+  $("orbPlay").addEventListener("click", () => load("530196605", true));
+  $("brand").addEventListener("click", (e) => { e.preventDefault(); home(); });
+  $("navHow").addEventListener("click", (e) => { e.preventDefault(); home(); $("how").scrollIntoView({ behavior: "smooth" }); });
 
-  async function load(ein, scroll = true) {
-    setStatus("Reading the filings…");
+  function home() {
+    stopAudio(); current = null;
+    org.classList.add("hidden"); landing.classList.remove("hidden"); $("headSearch").classList.add("hidden");
+    results.innerHTML = ""; setStatus("");
+    history.replaceState(null, "", "/");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ---- load an organization ----
+  async function load(ein, autoplay = false) {
+    setStatus("Reading the filings…"); results.innerHTML = "";
     stopAudio();
     try {
-      const r = await fetch(`/api/org/${ein}`);
+      const r = await fetch(`/api/org/${encodeURIComponent(ein)}`);
       if (!r.ok) throw new Error(await reason(r));
       current = await r.json();
       render(current);
       setStatus("");
-      org.classList.remove("hidden");
-      if (scroll) org.scrollIntoView({ behavior: "smooth", block: "start" });
+      landing.classList.add("hidden"); org.classList.remove("hidden"); $("headSearch").classList.remove("hidden");
+      $("q2").value = current.organization.name;
+      history.replaceState(null, "", "/?ein=" + current.organization.ein_text);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (autoplay && current.audio_available) play();
     } catch (err) { setStatus("Could not read this organization: " + err.message); }
   }
 
   function render(d) {
     const o = d.organization, l = d.latest;
+    const kind = o.subsection === 3 ? "Public charity, 501(c)(3)" : (o.subsection ? `501(c)(${o.subsection})` : "Tax-exempt organization");
+    $("meta").textContent = [`EIN ${o.ein_text}`, o.city && o.state ? `${o.city}, ${o.state}` : "", l ? `Latest filing FY${l.year}` : "No financial filings in the feed"].filter(Boolean).join(" · ");
     $("name").textContent = o.name;
-    const kind = o.subsection === 3 ? "501(c)(3)" : (o.subsection ? `501(c)(${o.subsection})` : "");
-    $("meta").textContent = [o.city && o.state ? `${o.city}, ${o.state}` : "", kind, `EIN ${o.ein_text}`,
-      l ? `latest filing: Form ${l.form}, fiscal year ending ${l.period_text}` : "no financial filings in the feed"].filter(Boolean).join(" · ");
-
-    const facts = $("facts"); facts.innerHTML = "";
-    $("showsTitle").classList.toggle("hidden", !d.facts.length);
-    for (const f of d.facts) {
-      const el = document.createElement("article"); el.className = "fact";
-      el.innerHTML = `<div class="top"><span class="label">${esc(f.label)}</span><span class="value">${esc(f.display)}</span></div>
-        <p>${esc(f.meaning)}</p><p class="limit">${esc(f.limit)}</p>`;
-      facts.appendChild(el);
-    }
-    const cav = $("caveats"); cav.innerHTML = "";
-    for (const c of d.caveats) { const li = document.createElement("li"); li.textContent = c; cav.appendChild(li); }
-
     const rows = d.years.filter(y => y.revenue !== null && y.expenses !== null);
-    $("yearsWrap").classList.toggle("hidden", rows.length < 2);
-    const tb = $("years").querySelector("tbody"); tb.innerHTML = "";
-    const max = Math.max(1, ...rows.map(y => Math.max(y.revenue, y.expenses)));
-    for (const y of rows.slice().reverse()) {
-      const tr = document.createElement("tr"); if (y.deficit) tr.className = "deficit";
-      tr.innerHTML = `<td>${esc(y.period_text)}</td><td>${money(y.revenue)}</td><td>${money(y.expenses)}</td><td>${money(y.net_assets)}</td>
-        <td class="bar"><div class="track"><span class="exp" style="width:${pct(y.expenses, max)}%"></span><span class="rev" style="width:${pct(y.revenue, max)}%;height:50%"></span></div></td>`;
-      tb.appendChild(tr);
-    }
+    const n = rows.length;
+    $("sub").textContent = `${kind}. ${n ? (n === 1 ? "One year" : n + " years") + " of filings on record." : "No numbers on file in this feed."}${d.status === "foundation" ? " Private foundation." : ""}${l && l.form !== "990" ? ` Files Form ${l.form}.` : ""}`;
 
-    const v = $("verify");
+    // stat cards: revenue, expenses (with change vs prior year), net assets (months)
+    const stats = $("stats"); stats.innerHTML = "";
+    const latest = rows.length ? rows[rows.length - 1] : null, prev = rows.length > 1 ? rows[rows.length - 2] : null;
+    const reserves = d.facts.find(f => f.key === "reserves");
+    if (latest) {
+      const delta = (a, b) => (b && b > 0 && a !== null) ? (a - b) / b : null;
+      const dcell = (x, good) => x === null ? "" : `<div class="d ${x >= 0 ? (good ? "up" : "down") : (good ? "down" : "up")}">${x >= 0 ? "▲" : "▼"} ${Math.abs(x * 100).toFixed(1)}% vs prior year</div>`;
+      stats.innerHTML =
+        `<div class="stat"><div class="k">Revenue, FY${latest.year}</div><div class="v">${money(latest.revenue)}</div>${prev ? dcell(delta(latest.revenue, prev.revenue), true) : '<div class="d">First year on file</div>'}</div>` +
+        `<div class="stat"><div class="k">Expenses, FY${latest.year}</div><div class="v">${money(latest.expenses)}</div>${prev ? dcell(delta(latest.expenses, prev.expenses), false) : '<div class="d">First year on file</div>'}</div>` +
+        `<div class="stat"><div class="k">Net assets, end of year</div><div class="v">${latest.net_assets === null ? "not on file" : money(latest.net_assets)}</div><div class="d">${reserves ? esc(reserves.display.replace(/^about /, "About ")) + " of expenses" : "reserves not on file"}</div></div>`;
+    }
+    stats.classList.toggle("hidden", !latest);
+
+    // what the filings show: the facts as prose, then where each number stops
+    $("secShow").classList.toggle("hidden", !d.facts.length);
+    $("showText").textContent = d.facts.map(f => f.meaning).join(" ");
+    const limits = $("limits"); limits.innerHTML = "";
+    for (const f of d.facts) { const li = document.createElement("li"); li.innerHTML = `<b>${esc(f.label)}.</b> ${esc(f.limit)}`; limits.appendChild(li); }
+
+    // what they can't tell you
+    const cant = $("cantText"); cant.innerHTML = "";
+    for (const c of d.caveats) { const p = document.createElement("p"); p.textContent = c; cant.appendChild(p); }
+
+    // year by year
+    $("secYears").classList.toggle("hidden", rows.length < 2);
+    const chart = $("chart"), labels = $("chartLabels"); chart.innerHTML = ""; labels.innerHTML = "";
+    const cols = Math.min(rows.length, 13);
+    const shown = rows.slice(-cols);
+    chart.style.gridTemplateColumns = `repeat(${cols}, 1fr)`; labels.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    const max = Math.max(1, ...shown.map(y => Math.max(y.revenue, y.expenses)));
+    for (const y of shown) {
+      const yr = document.createElement("div"); yr.className = "yr";
+      yr.innerHTML = `<i class="r" style="height:${pct(y.revenue, max)}%" title="Revenue ${money(y.revenue)}"></i><i class="e" style="height:${pct(y.expenses, max)}%" title="Expenses ${money(y.expenses)}"></i>`;
+      chart.appendChild(yr);
+      const lb = document.createElement("div"); lb.textContent = cols > 8 ? "'" + String(y.year).slice(2) : "FY" + y.year; labels.appendChild(lb);
+    }
+    const table = $("table");
+    table.innerHTML = `<div class="tr th"><div>Fiscal year</div><div>Revenue</div><div>Expenses</div><div>Net assets</div><div>Revenue vs expenses</div></div>` +
+      rows.slice().reverse().map(y => {
+        const diff = y.revenue - y.expenses;
+        return `<div class="tr"><div>FY${y.year}</div><div>${money(y.revenue)}</div><div>${money(y.expenses)}</div><div>${y.net_assets === null ? "" : money(y.net_assets)}</div><div class="${diff >= 0 ? "pos" : "neg"}">${diff >= 0 ? "+" : "−"}${money(Math.abs(diff))}</div></div>`;
+      }).join("");
+
+    // narration + verify
+    sentences = splitSentences(d.script);
+    cantIndex = Math.max(0, sentences.findIndex(s => s.startsWith("Now, what these filings cannot tell you")));
+    renderScript(-1);
     const links = [`<a href="${esc(o.propublica_url)}" rel="noopener">the organization's page on ProPublica</a>`];
     if (l && l.pdf_url) links.unshift(`<a href="${esc(l.pdf_url)}" rel="noopener">the filing itself (PDF)</a>`);
-    v.innerHTML = "Check the numbers yourself: " + links.join(" and ") + ".";
+    $("verify").innerHTML = `Check the numbers yourself: ${links.join(" and ")}. Numbers come unchanged from the <a href="https://projects.propublica.org/nonprofits/" rel="noopener">ProPublica Nonprofit Explorer</a>, built on IRS Form 990 data.`;
 
-    $("script").textContent = d.script;
-    listen.disabled = !d.audio_available;
-    $("listenNote").textContent = d.audio_available ? (d.audio_cached ? "" : "First play prepares the audio, a few seconds.") : "Audio is off on this server. The narration is written out below.";
-    player.classList.add("hidden");
+    // player state
+    player.classList.remove("playing"); document.body.classList.remove("playing");
+    $("bar").style.width = "0%"; $("miniBar").style.width = "0%"; $("time").textContent = "0:00 / 0:00"; $("now").textContent = "Ready when you are";
+    $("playBtn").disabled = !d.audio_available;
+    const note = $("playerNote");
+    if (!d.audio_available) { note.textContent = "Audio is off on this server. The narration is written out on the page."; note.classList.remove("hidden"); }
+    else if (!d.audio_cached) { note.textContent = "First play prepares the audio, a few seconds."; note.classList.remove("hidden"); }
+    else note.classList.add("hidden");
+    setChip("show");
   }
 
-  listen.addEventListener("click", async () => {
+  const pct = (v, max) => Math.max(0, Math.min(100, Math.round(100 * Math.max(0, v) / max)));
+  function splitSentences(text) { return text.split(/(?<=[.!?])\s+(?=[A-Z])/).map(s => s.trim()).filter(Boolean); }
+  function renderScript(activeIx) {
+    const p = $("script"); p.innerHTML = "";
+    sentences.forEach((s, i) => {
+      const node = i === activeIx ? document.createElement("mark") : document.createElement("span");
+      node.textContent = s + " "; p.appendChild(node);
+      if (i === activeIx && player.classList.contains("playing")) p.scrollTop = Math.max(0, node.offsetTop - p.offsetTop - 40);
+    });
+  }
+  function setChip(sec) { document.querySelectorAll("#chips button").forEach(b => b.classList.toggle("on", b.dataset.sec === sec)); }
+  document.querySelectorAll("#chips button").forEach(b => b.addEventListener("click", () => {
+    const target = { show: "secShow", cant: "secCant", years: "secYears" }[b.dataset.sec];
+    $(target).scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
+
+  // ---- audio ----
+  async function play() {
     if (!current) return;
-    listen.disabled = true; $("listenNote").textContent = "Preparing the audio…";
+    if (audio.src && !audio.ended) { audio.play(); return; }
+    $("playBtn").disabled = true; $("now").textContent = "Preparing the audio…";
     try {
       const r = await fetch(`/api/org/${current.organization.ein}/audio.mp3`);
       if (!r.ok) throw new Error(await reason(r));
-      stopAudio();
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
       audioUrl = URL.createObjectURL(await r.blob());
-      player.src = audioUrl; player.classList.remove("hidden");
-      await player.play();
-      $("listenNote").textContent = "";
-    } catch (err) { $("listenNote").textContent = "Could not play: " + err.message; }
-    finally { listen.disabled = false; }
-  });
-
-  async function reason(r) {
-    try { const b = await r.json(); if (b && b.detail) return b.detail; } catch (_) {}
-    return r.status === 429 ? "too many requests from this address, wait a minute and try again" : (r.statusText || ("HTTP " + r.status));
+      audio.src = audioUrl; audio.playbackRate = rates[rateIx];
+      await audio.play();
+    } catch (err) { $("now").textContent = "Could not play: " + err.message; }
+    finally { $("playBtn").disabled = false; }
   }
-  function stopAudio() { try { player.pause(); } catch (_) {} if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; } }
-  const pct = (v, max) => Math.max(0, Math.min(100, Math.round(100 * Math.max(0, v) / max)));
-  function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function toggle() { if (audio.paused) play(); else audio.pause(); }
+  function stopAudio() {
+    try { audio.pause(); } catch (_) {}
+    audio.removeAttribute("src"); audio.load();
+    if (audioUrl) { URL.revokeObjectURL(audioUrl); audioUrl = null; }
+    player.classList.remove("playing"); document.body.classList.remove("playing");
+  }
+  $("playBtn").addEventListener("click", toggle);
+  $("miniPlay").addEventListener("click", toggle);
+  $("rate").addEventListener("click", () => { rateIx = (rateIx + 1) % rates.length; audio.playbackRate = rates[rateIx]; $("rate").textContent = rates[rateIx] + "×"; });
+  audio.addEventListener("play", () => { player.classList.add("playing"); document.body.classList.add("playing"); $("playBtn").setAttribute("aria-label", "Pause"); });
+  audio.addEventListener("pause", () => { player.classList.remove("playing"); $("playBtn").setAttribute("aria-label", "Play"); });
+  audio.addEventListener("ended", () => { document.body.classList.remove("playing"); $("now").textContent = "That's the filing. Check the numbers yourself below."; renderScript(-1); setChip("show"); });
+  audio.addEventListener("timeupdate", () => {
+    const d = audio.duration || 0, t = audio.currentTime || 0, f = d ? t / d : 0;
+    $("bar").style.width = $("miniBar").style.width = (f * 100).toFixed(1) + "%";
+    $("time").textContent = `${mmss(t)} / ${mmss(d)}`; $("miniTime").textContent = mmss(t);
+    if (!sentences.length) return;
+    const total = sentences.reduce((a, s) => a + s.length, 0);
+    let acc = 0, ix = 0;
+    for (let i = 0; i < sentences.length; i++) { acc += sentences[i].length; if (acc / total >= f) { ix = i; break; } ix = i; }
+    if (!$("script").children[ix] || $("script").children[ix].tagName !== "MARK") renderScript(ix);
+    const inCant = cantIndex > 0 && ix >= cantIndex;
+    const label = inCant ? "Now: what they can't tell you" : "Now: what the filings show";
+    $("now").textContent = label; $("miniNow").textContent = label; setChip(inCant ? "cant" : "show");
+  });
+  const seek = (el) => (e) => { if (!audio.duration) return; const r = el.getBoundingClientRect(); audio.currentTime = audio.duration * Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); };
+  $("track").addEventListener("click", seek($("track")));
+  $("miniTrack").addEventListener("click", seek($("miniTrack")));
 
+  // ---- deep link ----
   const params = new URLSearchParams(location.search);
-  if (params.get("ein")) load(params.get("ein"), false);
+  if (params.get("ein")) load(params.get("ein"));
 })();
 </script>
 </body>
